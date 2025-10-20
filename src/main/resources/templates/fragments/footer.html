@@ -1,0 +1,14 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="footer">
+  <footer class="site-footer text-muted">
+    <div class="container py-4 d-flex justify-content-between align-items-center">
+      <div class="small">© <span th:text="${T(java.time.Year).now()}">2025</span> SmartHome</div>
+      <div class="small">
+        <a class="link-muted me-3" th:href="@{/about}">About</a>
+        <a class="link-muted" th:href="@{/contact}">Contact</a>
+      </div>
+    </div>
+  </footer>
+</div>
+</html>

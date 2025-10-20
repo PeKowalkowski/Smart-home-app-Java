@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: siteHead"></head>
+<body class="app-bg dark-mode">
+
+<div th:replace="fragments/header :: header"></div>
+
+<section class="auth-section">
+  <div class="auth-card container">
+    <div class="row g-0 align-items-center">
+      <div class="col-lg-6 d-none d-lg-flex left-panel">
+        <div class="hero-illustration">
+          <svg width="100%" height="100%" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#0f172a"/>
+                <stop offset="1" stop-color="#1e293b"/>
+              </linearGradient>
+            </defs>
+            <rect width="600" height="600" fill="url(#g1)"/>
+            <g transform="translate(60,80)" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5">
+              <circle cx="140" cy="120" r="110"/>
+              <circle cx="350" cy="200" r="80"/>
+              <circle cx="240" cy="320" r="60"/>
+            </g>
+          </svg>
+        </div>
+        <div class="illustration-caption">
+          <h3>Control your home from one place</h3>
+          <p class="small text-muted">Secure, fast and beautiful interface to manage devices and energy usage.</p>
+        </div>
+      </div>
+
+      <div class="col-lg-6 form-panel px-4 py-5">
+        <div class="form-inner mx-auto">
+          <h2 class="mb-3">Create your account</h2>
+          <p class="text-muted small mb-4">Join and manage your smart devices in one dashboard.</p>
+
+          <form th:action="@{/auth/register}" th:object="${registerRequest}" method="post" novalidate>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="form-floating mb-3">
+              <input type="email" th:field="*{email}" class="form-control form-control-dark" id="email" placeholder="Email">
+              <label for="email">Email</label>
+              <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+
+            <div class="form-floating mb-3">
+              <input type="text" th:field="*{username}" class="form-control form-control-dark" id="username" placeholder="Username">
+              <label for="username">Username</label>
+              <div class="text-danger small" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+            </div>
+
+            <div class="form-floating mb-4">
+              <input type="password" th:field="*{password}" class="form-control form-control-dark" id="password" placeholder="Password">
+              <label for="password">Password</label>
+              <div class="text-danger small" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+
+            <div class="d-grid mb-3">
+              <button class="btn btn-primary btn-lg">Create account</button>
+            </div>
+
+            <div class="text-center small text-muted">
+              By creating an account you agree to our <a href="#" class="link-muted">Terms</a>.
+            </div>
+
+            <div class="mt-3 text-center">
+              <span class="small text-muted">Already have an account? </span>
+              <a th:href="@{/auth/login}" class="link-muted fw-semibold ms-1">Sign in</a>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>

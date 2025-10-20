@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: siteHead"></head>
+<body class="app-bg dark-mode">
+
+<div th:replace="fragments/header :: header"></div>
+
+<section class="py-5">
+  <div class="container text-center">
+    <h1 class="display-6 fw-bold">SmartHome</h1>
+    <p class="lead text-muted">Manage your home devices easily — demo dashboard and auth with Spring Boot.</p>
+    <a class="btn btn-primary btn-lg mt-3" th:href="@{/auth/register}">Get started</a>
+  </div>
+</section>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>
