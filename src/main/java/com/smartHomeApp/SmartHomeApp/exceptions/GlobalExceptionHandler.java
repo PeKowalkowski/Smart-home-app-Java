@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
 
    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pd);
  }
-  @ExceptionHandler(RuntimeException.class)
+  @ExceptionHandler(BusinessExceptions.class)
   public ResponseEntity<ProblemDetail> handleBusinessExceptions(RuntimeException ex) {
     ProblemDetail problemDetail = switch (ex) {
       case BusinessExceptions.UserAlreadyExistsException userAlreadyExistsException -> createProblemDetail(
@@ -58,6 +58,38 @@ public class GlobalExceptionHandler {
     };
 
     log.error("Exception handled: [{}] {}", ex.getClass().getSimpleName(), ex.getMessage());
+    return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
+  }
+  @ExceptionHandler(TokenExceptions.class)
+  public ResponseEntity<ProblemDetail> handleTokenExceptions(TokenExceptions ex) {
+    ProblemDetail problemDetail = switch (ex) {
+      case TokenExceptions.RefreshTokenNotFoundException tNotFound -> createProblemDetail(
+        HttpStatus.UNAUTHORIZED,
+        "Refresh token not found",
+        "REFRESH_TOKEN_NOT_FOUND",
+        tNotFound.getMessage()
+      );
+      case TokenExceptions.RefreshTokenInvalidException tInvalid -> createProblemDetail(
+        HttpStatus.UNAUTHORIZED,
+        "Invalid refresh token",
+        "REFRESH_TOKEN_INVALID",
+        tInvalid.getMessage()
+      );
+      case TokenExceptions.RefreshTokenExpiredException tExpired -> createProblemDetail(
+        HttpStatus.UNAUTHORIZED,
+        "Refresh token expired",
+        "REFRESH_TOKEN_EXPIRED",
+        tExpired.getMessage()
+      );
+      default -> createProblemDetail(
+        HttpStatus.UNAUTHORIZED,
+        "Token error",
+        "TOKEN_ERROR",
+        ex.getMessage() != null ? ex.getMessage() : "Token error"
+      );
+    };
+
+    log.warn("Token exception: [{}] {}", ex.getClass().getSimpleName(), ex.getMessage());
     return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
   }
   @ExceptionHandler(DataIntegrityViolationException.class)
