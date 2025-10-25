@@ -10,6 +10,11 @@ public class BusinessExceptions extends RuntimeException {
       super("User with email " + email + " already exists: " + email);
     }
   }
+  public static class UserNotFoundException extends BusinessExceptions {
+    public UserNotFoundException(Long id) {
+      super("User with id  " + id + " don't exists.");
+    }
+  }
 
   public static class InvalidCredentialsException extends BusinessExceptions {
     public InvalidCredentialsException() {
