@@ -21,7 +21,7 @@ public class JwtTokenService {
     var claims = JwtClaimsSet.builder()
       .issuer(jwtProperties.issuer())
       .issuedAt(now)
-      .expiresAt(now.plus(jwtProperties.accessTokenTtl()))
+      .expiresAt(now.plus(jwtProperties.accessToken()))
       .subject(user.getEmail())
       .claim("role", user.getRole().name())
       .build();
@@ -33,7 +33,7 @@ public class JwtTokenService {
     var claims = JwtClaimsSet.builder()
       .issuer(jwtProperties.issuer())
       .issuedAt(now)
-      .expiresAt(now.plus(jwtProperties.refreshTokenTtl()))
+      .expiresAt(now.plus(jwtProperties.refreshToken()))
       .subject(user.getEmail())
       .build();
 
