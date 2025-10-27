@@ -2,6 +2,7 @@ package com.smartHomeApp.SmartHomeApp.application.services;
 
 import com.smartHomeApp.SmartHomeApp.config.jwt.JwtProperties;
 import com.smartHomeApp.SmartHomeApp.config.jwt.JwtTokenService;
+import com.smartHomeApp.SmartHomeApp.config.jwt.TokenHash;
 import com.smartHomeApp.SmartHomeApp.domain.entity.RefreshToken;
 import com.smartHomeApp.SmartHomeApp.domain.entity.User;
 import com.smartHomeApp.SmartHomeApp.domain.enums.Role;
@@ -15,6 +16,7 @@ import com.smartHomeApp.SmartHomeApp.models.dto.responses.AuthResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -29,6 +31,9 @@ public class AuthService {
   private final RefreshTokenRepository refreshTokenRepository;
   private final JwtProperties jwtProperties;
 
+  private static final int MAX_ACTIVE_REFRESH_TOKENS = 5;
+
+
   public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenService jwtTokenService, RefreshTokenRepository refreshTokenRepository, JwtProperties jwtProperties) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
@@ -37,9 +42,8 @@ public class AuthService {
     this.jwtProperties = jwtProperties;
   }
 
+ @Transactional
  public AuthResponse registerUser(RegisterRequest request) {
-   log.info("Registering new user: {}", request.email());
-
    if (userRepository.existsByEmail(request.email())) {
      throw new BusinessExceptions.UserAlreadyExistsException(request.email());
    }
@@ -56,33 +60,30 @@ public class AuthService {
      .registrationDate(LocalDateTime.now())
      .build();
 
-   var savedUser = userRepository.save(newUser);
+   var saved = userRepository.save(newUser);
 
-   var accessToken = jwtTokenService.generateAccessToken(savedUser);
-   var refreshTokenValue = jwtTokenService.generateRefreshToken(savedUser);
+   var accessToken = jwtTokenService.generateAccessToken(saved);
+   var refreshPlain = jwtTokenService.generateRefreshToken(saved);
+   var refreshHash = TokenHash.sha256(refreshPlain);
 
-   var refreshToken = RefreshToken.builder()
-     .token(refreshTokenValue)
-     .userId(savedUser.getId())
-     .issuedAt(Instant.now())
-     .expiresAt(Instant.now().plus(jwtProperties.refreshToken()))
+   maintainActiveTokenLimit(saved.getId());
+
+   var now = Instant.now();
+   var refresh = RefreshToken.builder()
+     .tokenHash(refreshHash)
+     .userId(saved.getId())
+     .issuedAt(now)
+     .expiresAt(now.plus(jwtProperties.refreshToken()))
      .revoked(false)
      .build();
-   refreshTokenRepository.save(refreshToken);
+   refreshTokenRepository.save(refresh);
 
-   return new AuthResponse(
-     accessToken,
-     refreshTokenValue,
-     savedUser.getEmail(),
-     savedUser.getUsername(),
-     savedUser.getLastLogin(),
-     "User registered successfully"
-   );
+   log.info("User registered: {}", saved.getEmail());
+   return new AuthResponse(accessToken, refreshPlain, saved.getEmail(), saved.getUsername(), saved.getLastLogin(), "User registered successfully");
  }
 
+  @Transactional
   public AuthResponse loginUser(LoginRequest request) {
-    log.info("Login attempt for user: {}", request.email());
-
     var user = userRepository.findByEmail(request.email())
       .or(() -> userRepository.findByUsername(request.email()))
       .orElseThrow(BusinessExceptions.InvalidCredentialsException::new);
@@ -94,52 +95,68 @@ public class AuthService {
     user.setLastLogin(LocalDateTime.now());
     userRepository.save(user);
 
-    var accessToken = jwtTokenService.generateAccessToken(user);
-    var refreshTokenValue = jwtTokenService.generateRefreshToken(user);
-
     refreshTokenRepository.revokeAllByUserId(user.getId());
 
-    var refreshToken = RefreshToken.builder()
-      .token(refreshTokenValue)
+    var accessToken = jwtTokenService.generateAccessToken(user);
+    var refreshPlain = jwtTokenService.generateRefreshToken(user);
+    var refreshHash = TokenHash.sha256(refreshPlain);
+
+    var now = Instant.now();
+    var refresh = RefreshToken.builder()
+      .tokenHash(refreshHash)
       .userId(user.getId())
-      .issuedAt(Instant.now())
-      .expiresAt(Instant.now().plus(jwtProperties.refreshToken()))
+      .issuedAt(now)
+      .expiresAt(now.plus(jwtProperties.refreshToken()))
       .revoked(false)
       .build();
-    refreshTokenRepository.save(refreshToken);
+    refreshTokenRepository.save(refresh);
 
-    return new AuthResponse(
-      accessToken,
-      refreshTokenValue,
-      user.getEmail(),
-      user.getUsername(),
-      user.getLastLogin(),
-      "User logged in successfully"
-    );
+    log.info("User logged in: {}", user.getEmail());
+    return new AuthResponse(accessToken, refreshPlain, user.getEmail(), user.getUsername(), user.getLastLogin(), "User logged in successfully");
   }
 
-  public AuthResponse refreshToken(String refreshTokenValue) {
-    log.info("Refreshing access token...");
+  @Transactional
+  public AuthResponse refreshToken(String refreshTokenPlain) {
+    var hash = TokenHash.sha256(refreshTokenPlain);
 
-    var refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
-      .orElseThrow(TokenExceptions.RefreshTokenNotFoundException::new);
+    var refreshToken = refreshTokenRepository.findByTokenHash(hash)
+      .orElseThrow(() -> new TokenExceptions.RefreshTokenNotFoundException());
 
     if (refreshToken.isRevoked() || refreshToken.getExpiresAt().isBefore(Instant.now())) {
-      throw new TokenExceptions.RefreshTokenInvalidException("token revoked or expired");
+      throw new TokenExceptions.RefreshTokenInvalidException("refresh token invalid or expired");
     }
 
     var user = userRepository.findById(refreshToken.getUserId())
       .orElseThrow(() -> new BusinessExceptions.UserNotFoundException(refreshToken.getUserId()));
-    var newAccessToken = jwtTokenService.generateAccessToken(user);
 
-    return new AuthResponse(
-      newAccessToken,
-      refreshToken.getToken(),
-      user.getEmail(),
-      user.getUsername(),
-      user.getLastLogin(),
-      "Access token refreshed successfully"
-    );
+    refreshToken.setRevoked(true);
+    refreshTokenRepository.save(refreshToken);
+
+    var newRefreshPlain = jwtTokenService.generateRefreshToken(user);
+    var newHash = TokenHash.sha256(newRefreshPlain);
+    var now = Instant.now();
+    var newRefresh = RefreshToken.builder()
+      .tokenHash(newHash)
+      .userId(user.getId())
+      .issuedAt(now)
+      .expiresAt(now.plus(jwtProperties.refreshToken()))
+      .revoked(false)
+      .build();
+    refreshTokenRepository.save(newRefresh);
+
+    var newAccess = jwtTokenService.generateAccessToken(user);
+
+    log.info("Refresh token rotated for userId={}", user.getId());
+    return new AuthResponse(newAccess, newRefreshPlain, user.getEmail(), user.getUsername(), user.getLastLogin(), "Access token refreshed");
+  }
+  private void maintainActiveTokenLimit(Long userId) {
+    var active = refreshTokenRepository.findActiveByUserId(userId);
+    if (active.size() >= MAX_ACTIVE_REFRESH_TOKENS) {
+      int toRevokeCount = active.size() - (MAX_ACTIVE_REFRESH_TOKENS - 1);
+      var toRevoke = active.subList(active.size() - toRevokeCount, active.size());
+      toRevoke.forEach(t -> t.setRevoked(true));
+      refreshTokenRepository.saveAll(toRevoke);
+    }
   }
 }
 

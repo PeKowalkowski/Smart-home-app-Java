@@ -40,22 +40,5 @@ public class JwtTokenService {
     return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
   }
 
-  public Jwt decodeToken(String token) {
-    return jwtDecoder.decode(token);
-  }
-  public boolean isTokenValid(String token, UserDetails user) {
-    try {
-      var jwt = decodeToken(token);
-      var username = jwt.getSubject();
-      var expiration = jwt.getExpiresAt();
-      return username.equals(user.getUsername()) && expiration.isAfter(Instant.now());
-    } catch (JwtException e) {
-      return false;
-    }
-  }
-  public Object extractClaim(String token, String claimName) {
-    var jwt = decodeToken(token);
-    return jwt.getClaims().get(claimName);
-  }
 }
 
