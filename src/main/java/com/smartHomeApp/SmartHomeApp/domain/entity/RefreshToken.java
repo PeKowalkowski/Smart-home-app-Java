@@ -10,15 +10,18 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "refresh_tokens")
+@Table(name = "refresh_tokens", indexes = {
+  @Index(name = "idx_refresh_token_hash", columnList = "token_hash"),
+  @Index(name = "idx_refresh_user_id", columnList = "user_id")
+})
 public class RefreshToken {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "token", nullable = false, unique = true, length = 128)
-  private String token;
+  @Column(name = "token_hash", nullable = false, unique = true, length = 64)
+  private String tokenHash;
 
   @Column(name = "user_id", nullable = false)
   private Long userId;
@@ -34,5 +37,4 @@ public class RefreshToken {
 
   @Column(name = "replaced_by_token_id")
   private Long replacedByTokenId;
-
 }
