@@ -1,4 +1,4 @@
-package com.smartHomeApp.SmartHomeApp.models.dto.responses;
+package com.smartHomeApp.SmartHomeApp.models.responses;
 
 import java.time.LocalDateTime;
 

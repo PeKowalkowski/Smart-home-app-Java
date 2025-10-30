@@ -1,6 +1,6 @@
 package com.smartHomeApp.SmartHomeApp;
 
-import com.smartHomeApp.SmartHomeApp.config.jwt.RSAKeyRecord;
+import com.smartHomeApp.SmartHomeApp.infrastructure.jwt.RSAKeyRecord;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;

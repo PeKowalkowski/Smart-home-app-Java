@@ -1,6 +1,6 @@
 package com.smartHomeApp.SmartHomeApp.api.viewControllers;
 
-import com.smartHomeApp.SmartHomeApp.models.dto.requests.RegisterRequest;
+import com.smartHomeApp.SmartHomeApp.models.requests.RegisterRequest;
 import com.smartHomeApp.SmartHomeApp.application.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;

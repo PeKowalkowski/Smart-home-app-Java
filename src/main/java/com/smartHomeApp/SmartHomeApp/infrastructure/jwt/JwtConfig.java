@@ -1,4 +1,4 @@
-package com.smartHomeApp.SmartHomeApp.config.jwt;
+package com.smartHomeApp.SmartHomeApp.infrastructure.jwt;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;

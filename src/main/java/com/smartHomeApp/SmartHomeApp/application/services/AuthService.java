@@ -1,8 +1,7 @@
 package com.smartHomeApp.SmartHomeApp.application.services;
 
-import com.smartHomeApp.SmartHomeApp.config.jwt.JwtProperties;
-import com.smartHomeApp.SmartHomeApp.config.jwt.JwtTokenService;
-import com.smartHomeApp.SmartHomeApp.config.jwt.TokenHash;
+import com.smartHomeApp.SmartHomeApp.infrastructure.jwt.JwtProperties;
+import com.smartHomeApp.SmartHomeApp.infrastructure.jwt.TokenHash;
 import com.smartHomeApp.SmartHomeApp.domain.entity.RefreshToken;
 import com.smartHomeApp.SmartHomeApp.domain.entity.User;
 import com.smartHomeApp.SmartHomeApp.domain.enums.Role;
@@ -10,9 +9,9 @@ import com.smartHomeApp.SmartHomeApp.exceptions.BusinessExceptions;
 import com.smartHomeApp.SmartHomeApp.exceptions.TokenExceptions;
 import com.smartHomeApp.SmartHomeApp.infrastructure.db.repository.RefreshTokenRepository;
 import com.smartHomeApp.SmartHomeApp.infrastructure.db.repository.UserRepository;
-import com.smartHomeApp.SmartHomeApp.models.dto.requests.LoginRequest;
-import com.smartHomeApp.SmartHomeApp.models.dto.requests.RegisterRequest;
-import com.smartHomeApp.SmartHomeApp.models.dto.responses.AuthResponse;
+import com.smartHomeApp.SmartHomeApp.models.requests.LoginRequest;
+import com.smartHomeApp.SmartHomeApp.models.requests.RegisterRequest;
+import com.smartHomeApp.SmartHomeApp.models.responses.AuthResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
