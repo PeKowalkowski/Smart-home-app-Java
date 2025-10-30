@@ -1,6 +1,6 @@
 package com.smartHomeApp.SmartHomeApp.config;
 
-import com.smartHomeApp.SmartHomeApp.config.jwt.JwtAuthenticationFilter;
+import com.smartHomeApp.SmartHomeApp.infrastructure.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

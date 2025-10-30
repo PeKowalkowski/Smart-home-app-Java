@@ -1,11 +1,11 @@
-package com.smartHomeApp.SmartHomeApp.config.jwt;
+package com.smartHomeApp.SmartHomeApp.application.services;
 
+import com.smartHomeApp.SmartHomeApp.infrastructure.jwt.JwtProperties;
 import com.smartHomeApp.SmartHomeApp.domain.entity.User;
 import com.smartHomeApp.SmartHomeApp.infrastructure.db.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;

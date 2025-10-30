@@ -1,11 +1,11 @@
 package com.smartHomeApp.SmartHomeApp.api.controllers;
 
 import com.smartHomeApp.SmartHomeApp.application.services.AuthService;
-import com.smartHomeApp.SmartHomeApp.config.jwt.JwtProperties;
+import com.smartHomeApp.SmartHomeApp.infrastructure.jwt.JwtProperties;
 import com.smartHomeApp.SmartHomeApp.exceptions.TokenExceptions;
-import com.smartHomeApp.SmartHomeApp.models.dto.requests.LoginRequest;
-import com.smartHomeApp.SmartHomeApp.models.dto.requests.RegisterRequest;
-import com.smartHomeApp.SmartHomeApp.models.dto.responses.AuthResponse;
+import com.smartHomeApp.SmartHomeApp.models.requests.LoginRequest;
+import com.smartHomeApp.SmartHomeApp.models.requests.RegisterRequest;
+import com.smartHomeApp.SmartHomeApp.models.responses.AuthResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

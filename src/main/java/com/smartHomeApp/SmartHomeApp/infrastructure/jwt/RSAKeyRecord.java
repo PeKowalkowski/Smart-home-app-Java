@@ -1,4 +1,4 @@
-package com.smartHomeApp.SmartHomeApp.config.jwt;
+package com.smartHomeApp.SmartHomeApp.infrastructure.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
