@@ -42,7 +42,6 @@ public class UserAggregate {
     newUser.setLocked(false);
     newUser.setUpdatedAt(LocalDateTime.now());
     var agg = new UserAggregate(newUser);
-    agg.domainEvents.add(new UserRegisteredEvent(newUser.getId(), newUser.getEmail()));
     return agg;
   }
 
