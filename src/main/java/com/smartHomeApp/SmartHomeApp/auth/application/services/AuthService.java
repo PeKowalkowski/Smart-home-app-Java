@@ -4,6 +4,7 @@ import com.smartHomeApp.SmartHomeApp.auth.infrastructure.jwt.JwtProperties;
 import com.smartHomeApp.SmartHomeApp.auth.infrastructure.jwt.TokenHash;
 import com.smartHomeApp.SmartHomeApp.user.domain.aggregates.UserAggregate;
 import com.smartHomeApp.SmartHomeApp.user.domain.entity.RefreshToken;
+import com.smartHomeApp.SmartHomeApp.user.domain.events.UserRegisteredEvent;
 import com.smartHomeApp.SmartHomeApp.user.domain.value.Role;
 import com.smartHomeApp.SmartHomeApp.common.exceptions.BusinessExceptions;
 import com.smartHomeApp.SmartHomeApp.common.exceptions.TokenExceptions;
@@ -65,6 +66,8 @@ public class AuthService {
 
     var agg = UserAggregate.registerNew(newUser);
     var savedUser = userRepository.save(agg.getUser());
+
+    eventPublisher.publishEvent(new UserRegisteredEvent(savedUser.getId(), savedUser.getEmail()));
 
     refreshTokenRepository.deleteExpiredTokens(Instant.now());
 

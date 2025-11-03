@@ -1,4 +1,10 @@
 package com.smartHomeApp.SmartHomeApp.device.domain.valueobjects;
 
-public class DeviceStatus {
+public enum DeviceStatus {
+  ON,
+  OFF,
+  UNKNOWN,
+  ERROR,
+  VALUE,
+  TEMP
 }
