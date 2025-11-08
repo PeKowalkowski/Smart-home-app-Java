@@ -1,4 +1,5 @@
 package com.smartHomeApp.SmartHomeApp.device.domain.events;
 
-public class DeviceAddedEvent {
-}
+import java.time.Instant;
+
+public record DeviceAddedEvent(String deviceId, Long userId, Instant happenedAt) {}

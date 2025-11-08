@@ -98,6 +98,27 @@ public class GlobalExceptionHandler {
     log.warn("Token exception: [{}] {}", ex.getClass().getSimpleName(), ex.getMessage());
     return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
   }
+  @ExceptionHandler(DeviceExceptions.class)
+  public ResponseEntity<ProblemDetail> handleDeviceExceptions(DeviceExceptions ex) {
+    ProblemDetail problemDetail = switch (ex) {
+      case DeviceExceptions.DeviceAlreadyExistsException daee-> createProblemDetail(
+        HttpStatus.CONFLICT,
+        "Refresh token not found",
+        "REFRESH_TOKEN_NOT_FOUND",
+        daee.getMessage()
+      );
+
+      default -> createProblemDetail(
+        HttpStatus.UNAUTHORIZED,
+        "Token error",
+        "TOKEN_ERROR",
+        ex.getMessage() != null ? ex.getMessage() : "Token error"
+      );
+    };
+
+    log.warn("Token exception: [{}] {}", ex.getClass().getSimpleName(), ex.getMessage());
+    return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
+  }
   @ExceptionHandler(DataIntegrityViolationException.class)
   public ResponseEntity<ProblemDetail> handleDataIntegrity(DataIntegrityViolationException ex) {
     log.warn("Data integrity violation: {}", ex.getMessage());

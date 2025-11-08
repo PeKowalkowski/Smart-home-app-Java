@@ -7,8 +7,9 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "devices", indexes = {
-  @Index(name = "idx_device_deviceId", columnList = "device_id"),
-  @Index(name = "idx_device_userId", columnList = "user_id")
+  @Index(name = "idx_device_device_id", columnList = "device_id"),
+  @Index(name = "idx_device_user_id", columnList = "user_id"),
+  @Index(name = "idx_device_topic_prefix", columnList = "topic_prefix")
 })
 @Getter
 @Setter
@@ -34,27 +35,45 @@ public class Device {
   @Column(nullable = false)
   private DeviceStatus status = DeviceStatus.UNKNOWN;
 
-
   @Column(name = "last_value")
   private String lastValue;
 
   @Column(name = "user_id", nullable = false)
   private Long userId;
 
-  @Column(nullable = false)
-  private String topic;
+  @Column(name = "topic_prefix", nullable = false)
+  private String topicPrefix;
 
   @Column(name = "last_seen")
   private Instant lastSeen;
 
-  @Column(name = "created_at", nullable = false)
+  @Column(name = "firmware_version")
+  private String firmwareVersion;
+
+  @Column(name = "location")
+  private String location;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt = Instant.now();
 
   @Column(name = "updated_at")
   private Instant updatedAt;
 
+
   public boolean isOnline(long offlineThresholdSeconds) {
     if (lastSeen == null) return false;
     return lastSeen.isAfter(Instant.now().minusSeconds(offlineThresholdSeconds));
+  }
+
+  public String getStatusTopic() {
+    return topicPrefix + "/status";
+  }
+
+  public String getCommandTopic() {
+    return topicPrefix + "/command";
+  }
+
+  public String getTelemetryTopic() {
+    return topicPrefix + "/telemetry";
   }
 }
