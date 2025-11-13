@@ -98,25 +98,35 @@ public class GlobalExceptionHandler {
     log.warn("Token exception: [{}] {}", ex.getClass().getSimpleName(), ex.getMessage());
     return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
   }
-  @ExceptionHandler(DeviceExceptions.class)
-  public ResponseEntity<ProblemDetail> handleDeviceExceptions(DeviceExceptions ex) {
+  public ResponseEntity<ProblemDetail> handleDeviceExceptions(RuntimeException ex) {
     ProblemDetail problemDetail = switch (ex) {
-      case DeviceExceptions.DeviceAlreadyExistsException daee-> createProblemDetail(
+      case DeviceExceptions.DeviceAlreadyExistsException dae -> createProblemDetail(
         HttpStatus.CONFLICT,
-        "Refresh token not found",
-        "REFRESH_TOKEN_NOT_FOUND",
-        daee.getMessage()
+        "Device already exists",
+        "DEVICE_ALREADY_EXISTS",
+        dae.getMessage()
       );
-
+      case DeviceExceptions.DeviceNotFoundException dnf -> createProblemDetail(
+        HttpStatus.NOT_FOUND,
+        "Device not found",
+        "DEVICE_NOT_FOUND",
+        dnf.getMessage()
+      );
+      case DeviceExceptions.DeviceCommandRejectedException dcr -> createProblemDetail(
+        HttpStatus.CONFLICT,
+        "Device command rejected",
+        "DEVICE_COMMAND_REJECTED",
+        dcr.getMessage()
+      );
       default -> createProblemDetail(
-        HttpStatus.UNAUTHORIZED,
-        "Token error",
-        "TOKEN_ERROR",
-        ex.getMessage() != null ? ex.getMessage() : "Token error"
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Device error",
+        "DEVICE_ERROR",
+        ex.getMessage() != null ? ex.getMessage() : "Device error"
       );
     };
 
-    log.warn("Token exception: [{}] {}", ex.getClass().getSimpleName(), ex.getMessage());
+    log.warn("Device exception handled: [{}] {}", ex.getClass().getSimpleName(), ex.getMessage());
     return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
   }
   @ExceptionHandler(DataIntegrityViolationException.class)
